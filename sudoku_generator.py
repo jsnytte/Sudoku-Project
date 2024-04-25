@@ -1,10 +1,10 @@
+import pygame
 import math, random
 
 """
 This was adapted from a GeeksforGeeks article "Program for Sudoku Generator" by Aarti_Rathi and Ankur Trisal
 https://www.geeksforgeeks.org/program-sudoku-generator/
 """
-
 
 class SudokuGenerator:
     """
@@ -245,6 +245,7 @@ class SudokuGenerator:
             else:
                 self.board[row][col] = 0
                 removed += 1
+
 class Cell:
     def __init__(self, value, row, col, screen):
         # Constructor for the Cell class
@@ -268,13 +269,23 @@ class Cell:
         # The cell is outlined red if it is currently selected.
         pass
 
-
 class Board:
     def __init__(self, width, height, screen, difficulty):
         # Constructor for the Board class.
         # screen is a window from PyGame.
         # difficulty is a variable to indicate if the user chose easy, medium, or hard.
-        pass
+        self.width = width
+        self.height = height
+        self.screen = screen
+        self.difficulty = difficulty
+        self.generator = SudokuGenerator(9, self.difficulty)
+        self.generator.fill_values()
+        self.generator.remove_cells()
+        original_board = self.generator.get_board()
+        self.original_board = [[j for j in original_board[i]] for i in range(len(original_board))]
+        self.cells = [[Cell(self.generator.board[row][col], row, col, self.screen) for col in range(9)] for row in range(9)]
+        self.selected_cell = None
+        self.selected = False
 
     def draw(self):
         # Draws an outline of the Sudoku grid, with bold lines to delineate the 3x3 boxes.
@@ -284,7 +295,8 @@ class Board:
     def select(self, row, col):
         # Marks the cell at (row, col) in the board as the current selected cell.
         # Once a cell has been selected, the user can edit its value or sketched value.
-        pass
+        self.selected_cell = self.cells[row][col]
+        self.selected = True
 
     def click(self, x, y):
         # If a tuple of (x, y) coordinates is within the displayed board, this function returns a tuple of the (row, col)
@@ -294,37 +306,60 @@ class Board:
     def clear(self):
         # Clears the value cell. Note that the user can only remove the cell values and sketched value that are
         # filled by themselves.
-        pass
+        self.selected_cell.set_sketched_value(0)
+        self.selected_cell.set_cell_value(0)
 
     def sketch(self, value):
         # Sets the sketched value of the current selected cell equal to user entered value.
         # It will be displayed at the top left corner of the cell using the draw() function.
-        pass
+        self.selected_cell.set_sketched_value(value)
+
 
     def place_number(self, value):
         # Sets the value of the current selected cell equal to user entered value.
         # Called when the user presses the Enter key.
-        pass
+        self.selected_cell.set_cell_value(value)
 
     def reset_to_original(self):
         # Reset all cells in the board to their original values (0 if cleared, otherwise the corresponding digit).
-        pass
+        self.cells =  [[Cell(self.original_board[row][col], row, col, self.screen) for col in range(9)] for row in range(9)]
+
 
     def is_full(self):
         # Returns a Boolean value indicating whether the board is full or not.
-        pass
+        for row in range(len(self.cells)):
+            for cell in self.cells[row]:
+                if cell.value == 0:
+                    return False
+        return True
 
     def update_board(self):
         # Updates the underlying 2D board with the values in all cells.
-        pass
+        for row in range(len(self.cells)):
+            for col in range(len(self.cells[row])):
+                self.generator.board[row][col] = self.cells[row][col].value
 
     def find_empty(self):
         # Finds an empty cell and returns its row and col as a tuple (x, y).
-        pass
+        for row in range(len(self.cells)):
+            for col in range(len(self.cells[row])):
+                cell = self.cells[row][col]
+                if cell.value == 0:
+                    return row, col
+        return None
 
     def check_board(self):
         # Check whether the Sudoku board is solved correctly.
-        pass
+        valid = 0
+        self.update_board()
+        for row in range(len(self.generator.board)):
+            for col in range(len(self.generator.board)):
+                if self.generator.is_valid(row, col, self.generator.board[row][col]):
+                    valid += 1
+        if valid == 9*9 :
+            return True
+        else:
+            return False
 
 
 '''
