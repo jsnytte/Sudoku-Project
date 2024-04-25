@@ -1,10 +1,13 @@
 import pygame
-import math, random
+import random
 
 """
 This was adapted from a GeeksforGeeks article "Program for Sudoku Generator" by Aarti_Rathi and Ankur Trisal
 https://www.geeksforgeeks.org/program-sudoku-generator/
+
 """
+
+
 class SudokuGenerator:
     """
     create a sudoku board - initialize class variables and set up the 2D board
@@ -265,14 +268,18 @@ class Cell:
         self.row = row
         self.col = col
         self.screen = screen
+        self.empty = True
+        self.rect = None
         self.sketched = False
         self.sketchable = False
         if self.value == 0:
             self.sketchable = True
         self.sketched_value = 0
         self.size = 50
-        self.x = self.col * self.size
-        self.y = self.row * self.size
+        self.y_displacement = 1.5 * self.size
+        self.x_displacement = 2 * self.size
+        self.x = self.col * self.size + self.x_displacement
+        self.y = self.row * self.size + self.y_displacement
 
     def set_cell_value(self, value):
         # Setter for this cell’s value
@@ -290,7 +297,8 @@ class Cell:
         # The cell is outlined red if it is currently selected.
         font = pygame.font.SysFont("Courier New", 20)
         font.set_bold(True)
-        pygame.draw.rect(self.screen, [255, 255, 255], (self.x, self.y, self.size, self.size), 0)
+
+        self.rect = pygame.draw.rect(self.screen, [255, 255, 255], (self.x, self.y, self.size, self.size), 0)
         centerx, centery = self.x + self.size / 2, self.y + self.size / 2
         if self.value != 0 or self.sketched_value != 0:
             if not self.sketchable:
@@ -299,7 +307,8 @@ class Cell:
                 self.screen.blit(text_surface, text_rect)
             elif self.sketchable:
                 text_surface = font.render(str(self.sketched_value), 1, [128, 128, 128])
-                self.screen.blit(text_surface, (self.x + 2, self.y + 2))
+                self.screen.blit(text_surface, (self.x + 1, self.y + 1))
+
 
 class Board:
     def __init__(self, width, height, screen, difficulty):
@@ -315,12 +324,13 @@ class Board:
         self.generator.remove_cells()
         ogboard = self.generator.get_board()
         self.original_board = [[j for j in ogboard[i]] for i in range(len(ogboard))]
-        self.cells = [[Cell(self.generator.board[row][col], row, col, self.screen) for col in range(9)] for row in range(9)]
+        self.cells = [[Cell(self.generator.board[row][col], row, col, self.screen) for col in range(9)] for row in
+                      range(9)]
         self.selected = False
         self.selected_cell = None
         self.size = 50
-        self.y_displacement = 1.5*self.size
-        self.x_displacement = 2*self.size
+        self.y_displacement = 1.5 * self.size
+        self.x_displacement = 2 * self.size
 
     def draw(self):
         # Draws an outline of the Sudoku grid, with bold lines to delineate the 3x3 boxes.
@@ -336,10 +346,10 @@ class Board:
                 width = 1
             x_hor = 0 + self.x_displacement, self.width + self.x_displacement
             y_hor = i * gap + self.y_displacement
-            pygame.draw.line(self.screen, (64,64,64), (x_hor[0], y_hor), (x_hor[1], y_hor), width)
+            pygame.draw.line(self.screen, (64, 64, 64), (x_hor[0], y_hor), (x_hor[1], y_hor), width)
             x_vert = i * gap + self.x_displacement
             y_vert = 0 + self.y_displacement, self.height + self.y_displacement
-            pygame.draw.line(self.screen, (64,64,64), (x_vert, y_vert[0]), (x_vert, y_vert[1]), width)
+            pygame.draw.line(self.screen, (64, 64, 64), (x_vert, y_vert[0]), (x_vert, y_vert[1]), width)
 
     def select(self, row, col):
         # Marks the cell at (row,col) in the board as the current selected cell.
@@ -348,13 +358,13 @@ class Board:
         col = int(col)
         self.selected_cell = self.cells[row][col]
         self.selected = True
-        
+
     def click(self, x, y):
         # If a tuple of (x,y) coordinates is within the displayed board, this function returns a tuple of the (row,col)
         # of the cell which was clicked. Otherwise, this function returns None.
         cell = self.cells[0][0]
         if cell.x_displacement <= x <= self.width + cell.x_displacement and cell.y_displacement <= y <= self.height + cell.y_displacement:
-            
+
             row = int((y - cell.y_displacement) // self.size)
             col = int((x - cell.x_displacement) // self.size)
             cell = self.cells[row][col]
@@ -386,7 +396,8 @@ class Board:
 
     def reset_to_original(self):
         # Reset all cells in the board to their original values (0 if cleared, otherwise the corresponding digit).
-        self.cells =  [[Cell(self.original_board[row][col], row, col, self.screen) for col in range(9)] for row in range(9)]
+        self.cells = [[Cell(self.original_board[row][col], row, col, self.screen) for col in range(9)] for row in
+                      range(9)]
 
     def is_full(self):
         # Returns a Boolean value indicating whether the board is full or not.
@@ -424,7 +435,8 @@ class Board:
         else:
             return False
 
-'''
+
+"""
 DO NOT CHANGE
 Provided for students
 Given a number of rows and number of cells to remove, this function:
@@ -432,11 +444,15 @@ Given a number of rows and number of cells to remove, this function:
 2. fills its values and saves this as the solved state
 3. removes the appropriate number of cells
 4. returns the representative 2D Python Lists of the board and solution
+
 Parameters:
 size is the number of rows/columns of the board (9 for this project)
 removed is the number of cells to clear (set to 0)
+
 Return: list[list] (a 2D Python list to represent the board)
-'''
+"""
+
+
 def generate_sudoku(size, removed):
     sudoku = SudokuGenerator(size, removed)
     sudoku.fill_values()
