@@ -147,14 +147,6 @@ def main():
                 if pygame.mouse.get_pressed()[0] == 1:
                     pygame.quit()
             
-            # if the selected cell is no longer selectable, deselect it.
-            try:
-                if board.selected_cell.sketchable == False and not board.is_full():
-                    row, col = board.find_empty()
-                    board.select(row,col)
-            except AttributeError:
-                pass
-                
             # draw red outline around selected cell
             if board.selected == True:
                 width = 4
@@ -175,6 +167,17 @@ def main():
                 
                 elif event.type == pygame.KEYDOWN:
                     cell_input = None
+                    if event.key == pygame.K_LEFT and col > 0:
+                        col -= 1
+                    elif event.key == pygame.K_RIGHT and col < 8:
+                        col += 1
+                    elif event.key == pygame.K_UP and row > 0:
+                        row -= 1
+                    elif event.key == pygame.K_DOWN and row < 8:
+                        row += 1
+
+                    board.select(row, col)
+
                     match event.key:
                         case pygame.K_1:
                             cell_input = 1
