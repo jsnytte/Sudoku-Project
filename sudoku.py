@@ -1,5 +1,4 @@
-#!/bin/python3
-import pygame
+import pygame, random
 from sudoku_generator import Board
 
 def main():
@@ -9,8 +8,9 @@ def main():
     size = screen_width, screen_height = 650, 650
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption("Sudoku")
-
-    # style
+    background_color = [200,200,200]
+    
+    # fonts
     title_font = pygame.font.SysFont("Courier New", 100)
     menu_font = pygame.font.SysFont("Courier New", 30)
     game_font = pygame.font.SysFont("Courier New", 25)
@@ -77,7 +77,7 @@ def main():
         if game_state == "menu":
             
             # window background
-            screen.fill([200, 200, 200])
+            screen.fill(background_color)
             
             # blit title and buttons
             screen.blit(title_surface, title_rect)
@@ -85,7 +85,12 @@ def main():
             screen.blit(medium_surface, medium_rect)
             screen.blit(hard_surface, hard_rect)
             screen.blit(exit_surface, exitmenu_rect)
-
+            if title_rect.collidepoint(pygame.mouse.get_pos()):
+                if pygame.mouse.get_pressed()[0] == 1:
+                    # easter egg - change background color
+                    for i in range(3):
+                        change = random.randint(5, 100)
+                        background_color[i] = 200 - change
             if easy_rect.collidepoint(pygame.mouse.get_pos()):
                 if pygame.mouse.get_pressed()[0] == 1:
                     difficulty = 30
@@ -120,7 +125,7 @@ def main():
                 runs += 1
             
             # fill background
-            screen.fill([200, 200, 200])
+            screen.fill(background_color)
             
             # blit buttons and rules
             screen.blit(reset_surface, reset_rect)
@@ -248,7 +253,7 @@ def main():
         # gameover screen
         if game_state == "gameover":
             # fill screen
-            screen.fill([200, 200, 200])
+            screen.fill(background_color)
 
             # winner screen
             if winner:
@@ -316,3 +321,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    

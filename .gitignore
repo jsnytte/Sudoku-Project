@@ -2,3 +2,4 @@
 /__pycache__
 __pycache__/sudoku_generator.cpython-312.pyc
 *.pyc
+.DS_Store
