@@ -245,7 +245,6 @@ def main():
                         else:
                             winner = False
                         game_state = "gameover"
-                        board.sudoku.print_board()
 
                 elif event.type == pygame.QUIT:
                     quit()
